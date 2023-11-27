@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+cwd="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+target_pane="${1}"
+all_panes="$(tmux list-panes -F '#{pane_id}')"
+
+tmux popup -h 10 -w 50% -x P -y P -E "${cwd}/getcmd ${target_pane} '${all_panes}'"
+

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# Get the current working directory.
+cwd="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Load the helper library.
+source "${cwd}/scripts/lib.sh"
+
+spells_file="$(get_option "@spellbook-spells-file")"
+header="<tab>=Insert, <enter>=Insert to all panes"
+trigger_pane="${1}"
+all_panes="${2}"
+
+out=$(fzf --no-info --header "$header" --expect tab,enter < "$spells_file")
+res=$?
+
+{
+  read -r key
+  read -r text
+} <<< "${out}"
+
+[[ $res -gt 0 && -z "${key}" ]] && exit 0
+
+# Strip the comment from the end of the line and copy to the tmux buffer.
+tmux set-buffer -- "${text%#*}"
+
+# Paste the buffer into the target pane(s).
+if [[ ${key} == "tab" ]]; then
+  tmux paste-buffer -p -t "${trigger_pane}"
+elif [[ ${key} == "enter" ]]; then
+  for pane in ${all_panes}; do
+    tmux paste-buffer -p -t "${pane}"
+  done 
+fi

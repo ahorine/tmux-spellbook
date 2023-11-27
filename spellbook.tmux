@@ -15,8 +15,8 @@ source "${cwd}/scripts/lib.sh"
 # Check the dependencies.
 check_deps
 
-# Get the key to run Spellbook, default to 's'.
-spellbook_key="$(get_tmux_option "@spellbook-key" "s")"
+# Get the key to run Spellbook.
+spellbook_key="$(get_option "@spellbook-key")"
 
 # Bind the key to run Spellbook.
 if [[ -n "$spellbook_key" ]]; then

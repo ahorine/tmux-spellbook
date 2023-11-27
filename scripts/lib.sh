@@ -3,7 +3,9 @@
 # Helper functions
 #
 
+# List of dependencies to run Spellbook.
 DEPS=(fzf)
+readonly DEPS
 
 # Print an error message to stderr and exit.
 function err() {
@@ -19,6 +21,8 @@ function err() {
   if [[ -n "$TMUX" ]]; then 
     tmux display-message -d $delay "$error"
   fi
+  # Leave the message on the screen for a while.
+  sleep $((delay / 1000))
   # Exit with an error code.
   exit 1
 }

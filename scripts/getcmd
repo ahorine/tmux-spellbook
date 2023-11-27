@@ -4,7 +4,8 @@
 cwd="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Load the helper library.
-source "${cwd}/scripts/lib.sh"
+# shellcheck disable=SC1091
+source "${cwd}/lib.sh"
 
 spells_file="$(get_option "@spellbook-spells-file")"
 header="<tab>=Insert, <enter>=Insert to all panes"

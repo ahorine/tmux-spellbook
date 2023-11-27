@@ -11,6 +11,11 @@ header="<tab>=Insert, <enter>=Insert to all panes"
 trigger_pane="${1}"
 all_panes="${2}"
 
+# If the spells file doesn't exist or isn't readable, exit.
+if [[ ! -f "${spells_file}" ]]; then
+  err "Spells file not found or not readable: ${spells_file}"
+fi
+
 out=$(fzf --no-info --header "$header" --expect tab,enter < "$spells_file")
 res=$?
 

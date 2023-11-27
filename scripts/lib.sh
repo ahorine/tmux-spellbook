@@ -59,7 +59,7 @@ function get_option() {
       get_tmux_option "$option" "s"
       ;;
     "@spellbook-spells-file")
-      get_tmux_option "$option" "${HOME}/.local/share/spellbook/spells"
+      get_tmux_option "$option" "${HOME}/.local/share/tmux/spellbook/spells"
       ;;
     # TODO: editor, window size, single/all pane keys, etc.
     *)

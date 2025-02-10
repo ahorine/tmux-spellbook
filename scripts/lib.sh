@@ -4,7 +4,7 @@
 #
 
 # List of dependencies to run Spellbook.
-DEPS=(fzf)
+DEPS=("fzf-tmux")
 readonly DEPS
 
 # Print an error message to stderr and exit.
@@ -18,8 +18,8 @@ function err() {
   # Print the message to stderr.
   echo "$error" >&2
   # Display the message in tmux if we're in a tmux session.
-  if [[ -n "$TMUX" ]]; then 
-    tmux display-message -d $delay "$error"
+  if [[ -n "$TMUX" ]]; then
+    tmux display-message -d "$delay" "$error"
   fi
   # Leave the message on the screen for a while.
   sleep $((delay / 1000))
@@ -31,7 +31,7 @@ function err() {
 function check_deps() {
   local dep
   for dep in "${DEPS[@]}"; do
-    if ! command -v "$dep" >/dev/null 2>&1; then
+    if ! hash "$dep" >/dev/null 2>&1; then
       err "Missing dependency: $dep"
     fi
   done
@@ -55,15 +55,15 @@ function get_option() {
   local option="$1"
 
   case "$option" in
-    "@spellbook-key")
-      get_tmux_option "$option" "s"
-      ;;
-    "@spellbook-spells-file")
-      get_tmux_option "$option" "${HOME}/.local/share/tmux/spellbook/spells"
-      ;;
-    # TODO: editor, window size, single/all pane keys, etc.
-    *)
-      err "Unknown option: $option"
-      ;;
+  "@spellbook-key")
+    get_tmux_option "$option" "s"
+    ;;
+  "@spellbook-spells-file")
+    get_tmux_option "$option" "$HOME/.local/share/tmux/spellbook/spells"
+    ;;
+  # TODO: editor, window size, single/all pane keys, etc.
+  *)
+    err "Unknown option: $option"
+    ;;
   esac
 }

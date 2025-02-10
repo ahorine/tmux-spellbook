@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Get the current working directory.
-cwd="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cwd="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Load the helper library.
 # shellcheck disable=SC1091
@@ -9,32 +9,37 @@ source "${cwd}/lib.sh"
 
 spells_file="$(get_option "@spellbook-spells-file")"
 header="<tab>=Insert, <enter>=Insert to all panes"
-trigger_pane="${1}"
-all_panes="${2}"
+trigger_pane="$(tmux display-message -p '#{pane_id}')"
+declare -a all_panes
+while IFS= read -r line; do
+  all_panes+=("$line")
+done < <(tmux list-panes -F '#{pane_id}')
+read -r x y < <(tmux display-message -p '#{e|+:#{cursor_x},#{e|+:#{window_offset_x},#{pane_left}}} #{e|+:#{cursor_y},#{e|+:#{window_offset_y},#{pane_top}}}')
 
 # If the spells file doesn't exist or isn't readable, exit.
-if [[ ! -f "${spells_file}" ]]; then
+if [[ ! -f "$spells_file" ]]; then
   err "Spells file not found or not readable: ${spells_file}"
 fi
 
-out=$(fzf --no-info --header "$header" --expect tab,enter < "$spells_file")
+out=$(fzf-tmux --border=rounded --cycle --select-1 --no-sort \
+  -x "$x" -y "$y" -h 10 -w 50% --header "$header" --expect tab,enter <"$spells_file")
 res=$?
 
 {
   read -r key
   read -r text
-} <<< "${out}"
+} <<<"$out"
 
-[[ $res -gt 0 && -z "${key}" ]] && exit 0
+[[ $res -gt 0 && -z "$key" ]] && exit 0
 
 # Strip the comment from the end of the line and copy to the tmux buffer.
 tmux set-buffer -- "${text%#*}"
 
 # Paste the buffer into the target pane(s).
 if [[ ${key} == "tab" ]]; then
-  tmux paste-buffer -p -t "${trigger_pane}"
+  tmux paste-buffer -p -t "$trigger_pane"
 elif [[ ${key} == "enter" ]]; then
-  for pane in ${all_panes}; do
-    tmux paste-buffer -p -t "${pane}"
-  done 
+  for pane in "${all_panes[@]}"; do
+    tmux paste-buffer -p -t "$pane"
+  done
 fi
